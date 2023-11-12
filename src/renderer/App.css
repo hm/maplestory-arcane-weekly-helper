@@ -5,10 +5,17 @@
 html {
   background-color: transparent;
 }
+
+.found {
+  color: green;
+}
+.notFound{
+  color: red;
+}
+
 body {
   margin: 0;
   padding: 0;
-  color: red;
   -webkit-app-region: drag;
   user-select: none;
   position: relative;

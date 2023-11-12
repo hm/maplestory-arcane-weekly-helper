@@ -14,22 +14,29 @@ const midnightChaser = [
   'statue.png',
 ]
 
-const initialState: any = {};
-for (const imageKey in midnightChaser) {
-  initialState[midnightChaser[imageKey]] = false;
-}
-
 function Hello() {
-  const [midnightChaserData, setMidnightChaserData] = useState<any>(initialState);
+  const [midnightChaserData, setMidnightChaserData] = useState<any>({
+    'bed.png': false,
+    'cabinet.png': false,
+    'chest.png': false,
+    'clock.png': false,
+    'couch.png': false,
+    'mirror.png': false,
+    'musicplayer.png': false,
+    'piano.png': false,
+    'statue.png': false,
+  });
   const searchForImage = async (image: string) => {
-    window.electron.ipcRenderer.sendMessage('takeScreenshot', { imageToFind: `./assets/images/${image}`});
-    window.electron.ipcRenderer.on('takeScreenshot', (imageFound) => {
+    window.electron.ipcRenderer.sendMessage('takeScreenshot', { image });
+    window.electron.ipcRenderer.on('takeScreenshot', (imageFound: any) => {
       if (imageFound) {
-        console.log({...midnightChaserData, [image]: true});
-        setMidnightChaserData({...midnightChaserData, [image]: true});
-        console.log(`${image} found!!`, midnightChaserData);
+        const newData = midnightChaserData;
+        newData[imageFound] = true;
+        console.log(newData);
+        setMidnightChaserData(newData);
+        console.log(`${imageFound} found!!`, midnightChaserData);
       } else {
-        console.log(image, 'not found!')
+        console.log(imageFound, 'not found!')
       }
     });
   }
@@ -52,7 +59,7 @@ function Hello() {
           return (
             <div key={image} style={{display:'flex'}}>
               <img width="auto" height="auto" src={imgsrc} />
-              <h1>{midnightChaserData[image] ? 'found' : 'not found'}</h1>
+              <h1 className={midnightChaserData[image] ? 'found' : 'notFound'}>{midnightChaserData[image] ? 'found' : 'not found'}</h1>
             </div>
           )
         })

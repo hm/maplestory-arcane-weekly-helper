@@ -14,12 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import screenshot from 'screenshot-desktop';
 const { screen, imageResource } = require("@nut-tree/nut-js");
-
-const fs = require("fs");
-const PNG = require("pngjs").PNG;
-const subImageMatch = require("matches-subimage");
 require("@nut-tree/template-matcher");
 
 class AppUpdater {
@@ -33,24 +28,23 @@ class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 
 
-const findImage = async ({ imageToFind, event }) => {
+const findImage = async ({ image, event }) => {
   try {
-    const img = await screen.find(imageResource(imageToFind), {
+    const img = await screen.find(imageResource(`./assets/images/${image}`), {
       providerData: {
           searchMultipleScales: true,
       },
       // confidence: 0.90,
     });
     // console.log(img);
-    console.log(`${imageToFind} found!`);
-    event.reply('takeScreenshot', true);
+    console.log(`${image} found!`);
+
+    event.reply('takeScreenshot', image);
     return true;
   } catch (err) {
-    // console.log(err);
-    // console.log(`${imageToFind} not found yet...`);
     setTimeout(() => {
-      findImage({ imageToFind, event });
-    }, 200);
+      findImage({ image, event });
+    }, 0);
     return false;
   }
 }
@@ -101,9 +95,9 @@ const createWindow = async () => {
     show: true,
     width: 400,
     height: 800,
-    resizable: false,
+    // resizable: true,
     frame: false,
-    autoHideMenuBar: true,
+    // autoHideMenuBar: true,
     transparent: true,
     alwaysOnTop: true,
     icon: getAssetPath('icon.png'),
@@ -121,6 +115,8 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
+    mainWindow.webContents.openDevTools();
+
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
