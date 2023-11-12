@@ -33,7 +33,7 @@ function Hello() {
         const newData = midnightChaserData;
         newData[imageFound] = true;
         console.log(newData);
-        setMidnightChaserData(newData);
+        setMidnightChaserData({ ...newData });
         console.log(`${imageFound} found!!`, midnightChaserData);
       } else {
         console.log(imageFound, 'not found!');
@@ -57,9 +57,18 @@ function Hello() {
         const imgsrc = require(`../../assets/images/${image}`);
         return (
           <div key={image} style={{ display: 'flex' }}>
-            <img width="auto" height="auto" src={imgsrc} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div>{image}</div>
+              <img
+                width="auto"
+                height="50px"
+                style={{ transform: 'scaleY(-1)' }}
+                src={imgsrc}
+              />
+            </div>
+
             <h1 className={midnightChaserData[image] ? 'found' : 'notFound'}>
-              {midnightChaserData[image] ? 'found' : 'not found'}
+              {midnightChaserData[image] === true ? 'found' : 'not found'}
             </h1>
           </div>
         );

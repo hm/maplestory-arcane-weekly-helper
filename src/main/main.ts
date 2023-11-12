@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -12,11 +14,21 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+import { screen, imageResource, Region } from '@nut-tree/nut-js';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
-const { screen, imageResource } = require('@nut-tree/nut-js');
 require('@nut-tree/template-matcher');
+
+if (
+  process.platform === 'win32' &&
+  !process.env.OPENCV4NODEJS_DISABLE_AUTOBUILD
+) {
+  process.env.path += `;${
+    require('../../release/app/node_modules/opencv4nodejs-prebuilt')
+      .opencvBinDir
+  }`;
+}
 
 class AppUpdater {
   constructor() {
@@ -28,24 +40,62 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-const findImage = async ({ image, event }) => {
-  try {
-    const img = await screen.find(imageResource(`./assets/images/${image}`), {
-      providerData: {
-        searchMultipleScales: true,
-      },
-      // confidence: 0.90,
-    });
-    // console.log(img);
-    console.log(`${image} found!`);
+screen.config.highlightDurationMs = 500;
+screen.config.autoHighlight = true;
 
+const findImage = async ({ image, event }) => {
+  const TIMEOUT = 1000 * 60 * 10;
+  try {
+    await screen.waitFor(
+      imageResource(`./assets/images/${image}`),
+      TIMEOUT,
+      0,
+      { confidence: 0.97 },
+    );
+    const boardLocation = await screen.find(
+      imageResource(`./assets/images/board.png`),
+      { confidence: 0.98 },
+    );
+
+    const playerLocation = await screen.find(
+      imageResource(`./assets/images/dot.png`),
+      { confidence: 0.98 },
+    );
+
+    console.log(boardLocation);
+    console.log(playerLocation);
+
+    const leftdX = playerLocation.left - boardLocation.left;
+    const topdX = playerLocation.top - boardLocation.top;
+
+    console.log(
+      `diff: ${leftdX}, ${topdX}`,
+    );
+
+    console.log(`${image} found!`);
     event.reply('takeScreenshot', image);
-    return true;
+
+    if (leftdX > 35 && topdX > 90) {
+      console.log('bottom right');
+    } else if (leftdX > 35 && topdX > 60) {
+      console.log('middle right');
+    } else if (leftdX > 35 && topdX > 30) {
+      console.log('top right');
+    } else if (leftdX > 0 && topdX > 90) {
+      console.log('bottom middle');
+    } else if (leftdX > 0 && topdX > 60) {
+      console.log('middle middle');
+    } else if (leftdX > 0 && topdX > 30) {
+      console.log('top middle');
+    } else if (leftdX > -30 && topdX > 90) {
+      console.log('bottom left');
+    } else if (leftdX > -30 && topdX > 60) {
+      console.log('middle left');
+    } else if (leftdX > -30 && topdX > 30) {
+      console.log('top left');
+    }
   } catch (err) {
-    setTimeout(() => {
-      findImage({ image, event });
-    }, 0);
-    return false;
+    console.log(err);
   }
 };
 

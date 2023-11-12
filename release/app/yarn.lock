@@ -516,6 +516,14 @@ dom-walk@^0.1.0:
   resolved "https://registry.yarnpkg.com/dom-walk/-/dom-walk-0.1.2.tgz#0c548bef048f4d1f2a97249002236060daa3fd84"
   integrity sha512-6QvTW9mrGeIegrFXdtQi9pk7O/nSK6lSdXW2eqUspN5LWD7UTji2Fqw5V2YLjBpHEoU9Xl/eUWNpDeZvoyOv2w==
 
+electron-overlay-window@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/electron-overlay-window/-/electron-overlay-window-3.3.0.tgz#db95dd08d1b3afad32f8cc288f19bec4ff9769a9"
+  integrity sha512-vxoc8nxfjgS8cLEPvM/b/vrx3IJNo8eaFgDJiyswIN+8GzMy06Mj+l8W7eUOU2uC4/m4C288AcEEOeqkHxbvSQ==
+  dependencies:
+    node-gyp-build "4.x.x"
+    throttle-debounce "5.x.x"
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
@@ -747,7 +755,7 @@ mkdirp@^0.5.1:
   dependencies:
     minimist "^1.2.6"
 
-nan@^2.13.2, nan@^2.14.2:
+nan@^2.13.2, nan@^2.14.2, nan@^2.15.0:
   version "2.18.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.18.0.tgz#26a6faae7ffbeb293a39660e88a76b82e30b7554"
   integrity sha512-W7tfG7vMOGtD30sHoZSSc/JVYiyDPEyQVso/Zz+/uQd0B0L46gtC+pHha5FFMRpil6fm/AoEcRWyOVi4+E/f8w==
@@ -785,6 +793,11 @@ node-addon-api@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-5.0.0.tgz#7d7e6f9ef89043befdb20c1989c905ebde18c501"
   integrity sha512-CvkDw2OEnme7ybCykJpVcKH+uAOLV2qLqiyla128dN9TkEWfrYmxG6C2boDe5KcNQqZF3orkqzGgOMvZ/JNekA==
+
+node-gyp-build@4.x.x:
+  version "4.6.1"
+  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.6.1.tgz#24b6d075e5e391b8d5539d98c7fc5c210cac8a3e"
+  integrity sha512-24vnklJmyRS8ViBNI8KbtK/r/DmXQMRiOMXTNz2nrTnAYUwjmEEbnnpB/+kt+yWRv73bPsSPRFddrcIbAxSiMQ==
 
 npm-run-path@^2.0.0:
   version "2.0.2"
@@ -834,6 +847,18 @@ opencv4nodejs-prebuilt@5.3.3:
     native-node-utils "^0.2.7"
     npmlog "^4.1.2"
     prebuild-install "^6.1.3"
+  optionalDependencies:
+    "@types/node" ">6"
+
+opencv4nodejs-prebuilt@^5.3.4:
+  version "5.3.4"
+  resolved "https://registry.yarnpkg.com/opencv4nodejs-prebuilt/-/opencv4nodejs-prebuilt-5.3.4.tgz#6b8b0cd480a0f4faa5c96434291d01da972c8ffe"
+  integrity sha512-YaSTnM7+JJnz65DSkSkyLqpfXe+4N6UOiI0kbMpQQ8ii2HtIKpeILIpMErxKWd2E+/BOmGRj10/Iy6M2KXLEXQ==
+  dependencies:
+    nan "^2.15.0"
+    native-node-utils "^0.2.7"
+    npmlog "^4.1.2"
+    prebuild-install "^6.1.4"
   optionalDependencies:
     "@types/node" ">6"
 
@@ -897,7 +922,7 @@ pngjs@^3.0.0, pngjs@^3.3.3:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
-prebuild-install@^6.1.3:
+prebuild-install@^6.1.3, prebuild-install@^6.1.4:
   version "6.1.4"
   resolved "https://registry.yarnpkg.com/prebuild-install/-/prebuild-install-6.1.4.tgz#ae3c0142ad611d58570b89af4986088a4937e00f"
   integrity sha512-Z4vpywnK1lBg+zdPCVCsKq0xO66eEV9rWo2zrROGGiRS4JtueBOdlB1FnY8lcy7JsUud/Q3ijUxyWN26Ika0vQ==
@@ -1123,6 +1148,11 @@ tar-stream@^2.1.4:
     fs-constants "^1.0.0"
     inherits "^2.0.3"
     readable-stream "^3.1.1"
+
+throttle-debounce@5.x.x:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/throttle-debounce/-/throttle-debounce-5.0.0.tgz#a17a4039e82a2ed38a5e7268e4132d6960d41933"
+  integrity sha512-2iQTSgkkc1Zyk0MeVrt/3BvuOXYPl/R8Z0U2xxo9rjwNciaHDG3R+Lm6dh4EeUci49DanvBnuqI6jshoQQRGEg==
 
 timm@^1.6.1:
   version "1.7.1"

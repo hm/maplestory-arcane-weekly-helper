@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@nut-tree/nut-js": "^3.1.2",
-    "@nut-tree/template-matcher": "^2.0.0"
+    "@nut-tree/template-matcher": "^2.0.0",
+    "electron-overlay-window": "^3.3.0",
+    "opencv4nodejs-prebuilt": "^5.3.4"
   }
 }
