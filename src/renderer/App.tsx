@@ -12,7 +12,7 @@ const midnightChaser = [
   'musicplayer.png',
   'piano.png',
   'statue.png',
-]
+];
 
 function Hello() {
   const [midnightChaserData, setMidnightChaserData] = useState<any>({
@@ -36,16 +36,16 @@ function Hello() {
         setMidnightChaserData(newData);
         console.log(`${imageFound} found!!`, midnightChaserData);
       } else {
-        console.log(imageFound, 'not found!')
+        console.log(imageFound, 'not found!');
       }
     });
-  }
+  };
 
   const findMidnightChaserImages = () => {
-    midnightChaser.forEach(image => {
+    midnightChaser.forEach((image) => {
       searchForImage(image);
-    })
-  }
+    });
+  };
 
   useEffect(() => {
     findMidnightChaserImages();
@@ -53,18 +53,17 @@ function Hello() {
 
   return (
     <div>
-      {
-        midnightChaser.map((image) => {
-          const imgsrc = require(`../../assets/images/${image}`)
-          return (
-            <div key={image} style={{display:'flex'}}>
-              <img width="auto" height="auto" src={imgsrc} />
-              <h1 className={midnightChaserData[image] ? 'found' : 'notFound'}>{midnightChaserData[image] ? 'found' : 'not found'}</h1>
-            </div>
-          )
-        })
-      }
-      
+      {midnightChaser.map((image) => {
+        const imgsrc = require(`../../assets/images/${image}`);
+        return (
+          <div key={image} style={{ display: 'flex' }}>
+            <img width="auto" height="auto" src={imgsrc} />
+            <h1 className={midnightChaserData[image] ? 'found' : 'notFound'}>
+              {midnightChaserData[image] ? 'found' : 'not found'}
+            </h1>
+          </div>
+        );
+      })}
     </div>
   );
 }
