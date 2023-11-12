@@ -15,6 +15,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { screen, imageResource, Region } from '@nut-tree/nut-js';
+import { OverlayController } from 'electron-overlay-window';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -47,7 +48,7 @@ const findImage = async ({ image, event }) => {
   const TIMEOUT = 1000 * 60 * 10;
   try {
     await screen.waitFor(
-      imageResource(`./assets/images/${image}`),
+      imageResource(`./assets/images/${image}.png`),
       TIMEOUT,
       0,
       { confidence: 0.97 },
@@ -68,12 +69,14 @@ const findImage = async ({ image, event }) => {
     const leftdX = playerLocation.left - boardLocation.left;
     const topdX = playerLocation.top - boardLocation.top;
 
-    console.log(
-      `diff: ${leftdX}, ${topdX}`,
-    );
+    console.log(`diff: ${leftdX}, ${topdX}`);
 
     console.log(`${image} found!`);
-    event.reply('takeScreenshot', image);
+    event.reply('searchForImage', {
+      imageFound: image,
+      boardLocation,
+      playerLocation,
+    });
 
     if (leftdX > 35 && topdX > 90) {
       console.log('bottom right');
@@ -99,7 +102,7 @@ const findImage = async ({ image, event }) => {
   }
 };
 
-ipcMain.on('takeScreenshot', async (event, arg) => {
+ipcMain.on('searchForImage', async (event, arg) => {
   findImage({ ...arg, event });
 });
 
@@ -143,13 +146,9 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: true,
-    width: 400,
-    height: 800,
-    // resizable: true,
     frame: false,
-    // autoHideMenuBar: true,
+    skipTaskbar: true,
     transparent: true,
-    alwaysOnTop: true,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       nodeIntegration: true,
@@ -165,6 +164,8 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
+    OverlayController.focusTarget();
+    OverlayController.activateOverlay();
     mainWindow.webContents.openDevTools();
 
     if (process.env.START_MINIMIZED) {
@@ -177,6 +178,8 @@ const createWindow = async () => {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  OverlayController.attachByTitle(mainWindow, 'MapleStory');
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();

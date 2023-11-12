@@ -3,42 +3,50 @@ import './App.css';
 import { useEffect, useState } from 'react';
 
 const midnightChaser = [
-  'bed.png',
-  'cabinet.png',
-  'chest.png',
-  'clock.png',
-  'couch.png',
-  'mirror.png',
-  'musicplayer.png',
-  'piano.png',
-  'statue.png',
+  'bed',
+  'cabinet',
+  'chest',
+  'clock',
+  'couch',
+  'mirror',
+  'musicplayer',
+  'piano',
+  'statue',
 ];
 
 function Hello() {
+  const [boardPosition, setBoardPosition] = useState({ top: 0, left: 0 });
   const [midnightChaserData, setMidnightChaserData] = useState<any>({
-    'bed.png': false,
-    'cabinet.png': false,
-    'chest.png': false,
-    'clock.png': false,
-    'couch.png': false,
-    'mirror.png': false,
-    'musicplayer.png': false,
-    'piano.png': false,
-    'statue.png': false,
+    bed: false,
+    cabinet: false,
+    chest: false,
+    clock: false,
+    couch: false,
+    mirror: false,
+    musicplayer: false,
+    piano: false,
+    statue: false,
   });
   const searchForImage = async (image: string) => {
-    window.electron.ipcRenderer.sendMessage('takeScreenshot', { image });
-    window.electron.ipcRenderer.on('takeScreenshot', (imageFound: any) => {
-      if (imageFound) {
-        const newData = midnightChaserData;
-        newData[imageFound] = true;
-        console.log(newData);
-        setMidnightChaserData({ ...newData });
-        console.log(`${imageFound} found!!`, midnightChaserData);
-      } else {
-        console.log(imageFound, 'not found!');
-      }
-    });
+    window.electron.ipcRenderer.sendMessage('searchForImage', { image });
+    window.electron.ipcRenderer.on(
+      'searchForImage',
+      ({ imageFound, boardLocation, playerLocation }: any) => {
+        if (imageFound) {
+          const newData = midnightChaserData;
+          newData[imageFound] = true;
+          setMidnightChaserData({ ...newData });
+          setBoardPosition({
+            top: boardLocation.top,
+            left: boardLocation.left,
+          });
+          console.log(boardLocation);
+          console.log(`${imageFound} found!!`, midnightChaserData);
+        } else {
+          console.log(imageFound, 'not found!');
+        }
+      },
+    );
   };
 
   const findMidnightChaserImages = () => {
@@ -52,27 +60,41 @@ function Hello() {
   }, []);
 
   return (
-    <div>
-      {midnightChaser.map((image) => {
-        const imgsrc = require(`../../assets/images/${image}`);
-        return (
-          <div key={image} style={{ display: 'flex' }}>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div>{image}</div>
-              <img
-                width="auto"
-                height="50px"
-                style={{ transform: 'scaleY(-1)' }}
-                src={imgsrc}
-              />
+    <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'row-reverse',
+      }}
+    >
+      <div style={{ width: '145px', height: '180px', position: 'absolute' }} />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'rgba(255,255,255, 0.8)',
+          gap: 2,
+        }}
+      >
+        {midnightChaser.map((image) => {
+          return (
+            <div
+              key={image}
+              style={{
+                display: 'flex',
+                height: '20px',
+                justifyContent: 'space-between',
+              }}
+            >
+              <p>{image}</p>
+              <p className={midnightChaserData[image] ? 'found' : 'notFound'}>
+                {midnightChaserData[image] === true ? 'found' : 'not found'}
+              </p>
             </div>
-
-            <h1 className={midnightChaserData[image] ? 'found' : 'notFound'}>
-              {midnightChaserData[image] === true ? 'found' : 'not found'}
-            </h1>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }
