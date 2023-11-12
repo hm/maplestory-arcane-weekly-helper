@@ -14,8 +14,9 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-const { screen, imageResource } = require("@nut-tree/nut-js");
-require("@nut-tree/template-matcher");
+
+const { screen, imageResource } = require('@nut-tree/nut-js');
+require('@nut-tree/template-matcher');
 
 class AppUpdater {
   constructor() {
@@ -27,12 +28,11 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-
 const findImage = async ({ image, event }) => {
   try {
     const img = await screen.find(imageResource(`./assets/images/${image}`), {
       providerData: {
-          searchMultipleScales: true,
+        searchMultipleScales: true,
       },
       // confidence: 0.90,
     });
@@ -47,10 +47,10 @@ const findImage = async ({ image, event }) => {
     }, 0);
     return false;
   }
-}
+};
 
 ipcMain.on('takeScreenshot', async (event, arg) => {
-  findImage({...arg, event});
+  findImage({ ...arg, event });
 });
 
 if (process.env.NODE_ENV === 'production') {
