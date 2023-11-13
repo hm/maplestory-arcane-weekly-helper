@@ -14,7 +14,12 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import { screen, imageResource, Region } from '@nut-tree/nut-js';
+import {
+  screen,
+  imageResource,
+  Region,
+  getActiveWindow,
+} from '@nut-tree/nut-js';
 import { OverlayController } from 'electron-overlay-window';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
@@ -43,38 +48,44 @@ let mainWindow: BrowserWindow | null = null;
 
 screen.config.highlightDurationMs = 500;
 screen.config.autoHighlight = true;
+screen.config.resourceDirectory = './assets/images/';
 
 const findImage = async ({ image, event }) => {
   const TIMEOUT = 1000 * 60 * 10;
   try {
-    await screen.waitFor(
-      imageResource(`./assets/images/${image}.png`),
-      TIMEOUT,
-      0,
-      { confidence: 0.97 },
-    );
-    const boardLocation = await screen.find(
-      imageResource(`./assets/images/board.png`),
-      { confidence: 0.98 },
-    );
+    const windowRef = await getActiveWindow();
+    const currentWindowRegion = await windowRef.region;
 
-    const playerLocation = await screen.find(
-      imageResource(`./assets/images/dot.png`),
-      { confidence: 0.98 },
-    );
+    const halfScreenHeight = currentWindowRegion.height / 2;
+    currentWindowRegion.height = halfScreenHeight;
+    currentWindowRegion.top += halfScreenHeight;
 
-    console.log(boardLocation);
-    console.log(playerLocation);
+    await screen.highlight(currentWindowRegion);
+
+    await screen.waitFor(imageResource(`${image}.png`), TIMEOUT, 0, {
+      confidence: 0.98,
+      searchRegion: currentWindowRegion,
+    });
+
+    const boardLocation = await screen.find(imageResource(`board.png`), {
+      confidence: 0.975,
+    });
+
+    const playerLocation = await screen.find(imageResource(`dot.png`), {
+      confidence: 0.975,
+    });
+
+    // console.log(boardLocation);
+    // console.log(playerLocation);
 
     const leftdX = playerLocation.left - boardLocation.left;
     const topdX = playerLocation.top - boardLocation.top;
 
-    console.log(`diff: ${leftdX}, ${topdX}`);
+    // console.log(`diff: ${leftdX}, ${topdX}`);
 
-    console.log(`${image} found!`);
+    console.log(`${image} found!`, playerLocation);
     event.reply('searchForImage', {
       imageFound: image,
-      boardLocation,
       playerLocation,
     });
 
@@ -166,7 +177,6 @@ const createWindow = async () => {
     }
     OverlayController.focusTarget();
     OverlayController.activateOverlay();
-    mainWindow.webContents.openDevTools();
 
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();

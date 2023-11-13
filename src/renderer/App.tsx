@@ -1,6 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const midnightChaser = [
   'bed',
@@ -15,32 +15,32 @@ const midnightChaser = [
 ];
 
 function Hello() {
-  const [boardPosition, setBoardPosition] = useState({ top: 0, left: 0 });
-  const [midnightChaserData, setMidnightChaserData] = useState<any>({
-    bed: false,
-    cabinet: false,
-    chest: false,
-    clock: false,
-    couch: false,
-    mirror: false,
-    musicplayer: false,
-    piano: false,
-    statue: false,
+  const initialFoundState: any = {};
+  const initialBoardPositionState: any = {};
+
+  midnightChaser.forEach((furniture) => {
+    initialFoundState[furniture] = false;
+    initialBoardPositionState[furniture] = { top: -1, left: -1 };
   });
+
+  const [boardPosition, setBoardPosition] = useState(initialBoardPositionState);
+  const [midnightChaserData, setMidnightChaserData] =
+    useState<any>(initialFoundState);
+
   const searchForImage = async (image: string) => {
     window.electron.ipcRenderer.sendMessage('searchForImage', { image });
     window.electron.ipcRenderer.on(
       'searchForImage',
-      ({ imageFound, boardLocation, playerLocation }: any) => {
+      ({ imageFound, playerLocation }: any) => {
         if (imageFound) {
           const newData = midnightChaserData;
           newData[imageFound] = true;
           setMidnightChaserData({ ...newData });
-          setBoardPosition({
-            top: boardLocation.top,
-            left: boardLocation.left,
-          });
-          console.log(boardLocation);
+
+          const newBoardPosition = boardPosition;
+          newBoardPosition[imageFound] = playerLocation;
+          setBoardPosition({ ...newBoardPosition });
+
           console.log(`${imageFound} found!!`, midnightChaserData);
         } else {
           console.log(imageFound, 'not found!');
@@ -55,6 +55,47 @@ function Hello() {
     });
   };
 
+  const renderBoardPositionsOnOverlay = useMemo(() => {
+    return midnightChaser.map((image) => {
+      const imgsrc = require(`../../assets/images/thumbnail/${image}.png`);
+      return (
+        <img
+          key={image}
+          style={{
+            display: boardPosition[image].top === -1 ? 'none' : 'flex',
+            position: 'absolute',
+            width: '30px',
+            height: '30px',
+            top: `${boardPosition[image].top - 155}px`,
+            left: `${boardPosition[image].left - 205}px`,
+          }}
+          alt=""
+          src={imgsrc}
+        />
+      );
+    });
+  }, [boardPosition]);
+
+  const renderRightSideOverlay = useMemo(() => {
+    return midnightChaser.map((image) => {
+      return (
+        <div
+          key={image}
+          style={{
+            display: 'flex',
+            height: '20px',
+            justifyContent: 'space-between',
+          }}
+        >
+          <p>{image}</p>
+          <p className={midnightChaserData[image] ? 'found' : 'notFound'}>
+            {midnightChaserData[image] === true ? 'found' : 'not found'}
+          </p>
+        </div>
+      );
+    });
+  }, [midnightChaserData]);
+
   useEffect(() => {
     findMidnightChaserImages();
   }, []);
@@ -68,7 +109,7 @@ function Hello() {
         flexDirection: 'row-reverse',
       }}
     >
-      <div style={{ width: '145px', height: '180px', position: 'absolute' }} />
+      {renderBoardPositionsOnOverlay}
       <div
         style={{
           display: 'flex',
@@ -77,23 +118,7 @@ function Hello() {
           gap: 2,
         }}
       >
-        {midnightChaser.map((image) => {
-          return (
-            <div
-              key={image}
-              style={{
-                display: 'flex',
-                height: '20px',
-                justifyContent: 'space-between',
-              }}
-            >
-              <p>{image}</p>
-              <p className={midnightChaserData[image] ? 'found' : 'notFound'}>
-                {midnightChaserData[image] === true ? 'found' : 'not found'}
-              </p>
-            </div>
-          );
-        })}
+        {renderRightSideOverlay}
       </div>
     </div>
   );

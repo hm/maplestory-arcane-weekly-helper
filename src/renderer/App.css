@@ -20,8 +20,6 @@ html {
 body {
   margin: 0;
   padding: 0;
-  -webkit-app-region: drag;
-  user-select: none;
   position: relative;
   height: calc(100vh - 4px * 2);
   display: flex;
