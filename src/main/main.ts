@@ -74,7 +74,7 @@ const findImage = async ({ image, event }) => {
     }
 
     const playerLocation: any = await screen.find(imageResource(`dot.png`), {
-      confidence: 0.975,
+      confidence: 0.97,
     });
 
     const leftdX = playerLocation.left - cachedBoardLocation.left;
@@ -87,19 +87,19 @@ const findImage = async ({ image, event }) => {
       location = 'BOTTOM_RIGHT';
     } else if (leftdX > 30 && topdX > 55) {
       location = 'MIDDLE_RIGHT';
-    } else if (leftdX > 30 && topdX > 25) {
+    } else if (leftdX > 30 && topdX > 0) {
       location = 'TOP_RIGHT';
     } else if (leftdX > -5 && topdX > 85) {
       location = 'BOTTOM_MIDDLE';
     } else if (leftdX > -5 && topdX > 55) {
       location = 'CENTER';
-    } else if (leftdX > -5 && topdX > 25) {
+    } else if (leftdX > -5 && topdX > 0) {
       location = 'TOP_MIDDLE';
     } else if (leftdX > -35 && topdX > 85) {
       location = 'BOTTOM_LEFT';
     } else if (leftdX > -35 && topdX > 55) {
       location = 'MIDDLE_LEFT';
-    } else if (leftdX > -35 && topdX > 25) {
+    } else if (leftdX > -35 && topdX > 0) {
       location = 'TOP_LEFT';
     }
 

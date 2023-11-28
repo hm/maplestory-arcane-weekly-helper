@@ -115,6 +115,7 @@ function Hello() {
         boardPositions.splice(index, 1);
       }
     });
+    console.log(missingData, boardPositions);
     if (missingData.length === 1) {
       const missingItem = missingData[0];
       const newData = midnightChaserData;
