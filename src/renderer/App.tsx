@@ -14,6 +14,20 @@ const midnightChaser = [
   'statue',
 ];
 
+enum BOARD_POSITION {
+  BOTTOM_LEFT = 'BOTTOM_LEFT',
+  BOTTOM_MIDDLE = 'BOTTOM_MIDDLE',
+  BOTTOM_RIGHT = 'BOTTOM_RIGHT',
+
+  MIDDLE_LEFT = 'MIDDLE_LEFT',
+  CENTER = 'CENTER',
+  MIDDLE_RIGHT = 'MIDDLE_RIGHT',
+
+  TOP_LEFT = 'TOP_LEFT',
+  TOP_MIDDLE = 'TOP_MIDDLE',
+  TOP_RIGHT = 'TOP_RIGHT',
+}
+
 function Hello() {
   const initialFoundState: any = {};
   const initialBoardPositionState: any = {};
@@ -23,7 +37,6 @@ function Hello() {
     initialBoardPositionState[furniture] = { top: -1, left: -1 };
   });
 
-  const [boardPosition, setBoardPosition] = useState(initialBoardPositionState);
   const [midnightChaserData, setMidnightChaserData] =
     useState<any>(initialFoundState);
 
@@ -31,17 +44,12 @@ function Hello() {
     window.electron.ipcRenderer.sendMessage('searchForImage', { image });
     window.electron.ipcRenderer.on(
       'searchForImage',
-      ({ imageFound, playerLocation }: any) => {
+      ({ imageFound, location }: any) => {
         if (imageFound) {
           const newData = midnightChaserData;
-          newData[imageFound] = true;
+          newData[imageFound] = location;
           setMidnightChaserData({ ...newData });
-
-          const newBoardPosition = boardPosition;
-          newBoardPosition[imageFound] = playerLocation;
-          setBoardPosition({ ...newBoardPosition });
-
-          console.log(`${imageFound} found!!`, midnightChaserData);
+          console.log(`${imageFound} found!!`, location);
         } else {
           console.log(imageFound, 'not found!');
         }
@@ -62,19 +70,16 @@ function Hello() {
         <img
           key={image}
           style={{
-            display: boardPosition[image].top === -1 ? 'none' : 'flex',
-            position: 'absolute',
-            width: '30px',
-            height: '30px',
-            top: `${boardPosition[image].top - 155}px`,
-            left: `${boardPosition[image].left - 205}px`,
+            display: 'flex',
+            visibility: midnightChaserData[image] ? 'visible' : 'hidden',
+            gridArea: midnightChaserData[image],
           }}
           alt=""
           src={imgsrc}
         />
       );
     });
-  }, [boardPosition]);
+  }, [midnightChaserData]);
 
   const renderRightSideOverlay = useMemo(() => {
     return midnightChaser.map((image) => {
@@ -89,7 +94,7 @@ function Hello() {
         >
           <p>{image}</p>
           <p className={midnightChaserData[image] ? 'found' : 'notFound'}>
-            {midnightChaserData[image] === true ? 'found' : 'not found'}
+            {midnightChaserData[image] ? 'found' : 'not found'}
           </p>
         </div>
       );
@@ -100,6 +105,25 @@ function Hello() {
     findMidnightChaserImages();
   }, []);
 
+  useEffect(() => {
+    const missingData: string[] = [];
+    const boardPositions: string[] = Object.keys(BOARD_POSITION);
+    Object.keys(midnightChaserData).forEach((key: string, index: number) => {
+      if (!midnightChaserData[key]) {
+        missingData.push(key);
+      } else {
+        boardPositions.splice(index, 1);
+      }
+    });
+    if (missingData.length === 1) {
+      const missingItem = missingData[0];
+      const newData = midnightChaserData;
+      // eslint-disable-next-line prefer-destructuring
+      newData[missingItem] = boardPositions[0];
+      setMidnightChaserData({ ...newData });
+    }
+  }, [midnightChaserData]);
+
   return (
     <div
       style={{
@@ -109,7 +133,6 @@ function Hello() {
         flexDirection: 'row-reverse',
       }}
     >
-      {renderBoardPositionsOnOverlay}
       <div
         style={{
           display: 'flex',
@@ -119,6 +142,15 @@ function Hello() {
         }}
       >
         {renderRightSideOverlay}
+        <div
+          style={{
+            display: 'grid',
+            width: '100%',
+            gridTemplateAreas: `"${BOARD_POSITION.TOP_LEFT} ${BOARD_POSITION.TOP_MIDDLE} ${BOARD_POSITION.TOP_RIGHT}" "${BOARD_POSITION.MIDDLE_LEFT} ${BOARD_POSITION.CENTER} ${BOARD_POSITION.MIDDLE_RIGHT}" "${BOARD_POSITION.BOTTOM_LEFT} ${BOARD_POSITION.BOTTOM_MIDDLE} ${BOARD_POSITION.BOTTOM_RIGHT}"`,
+          }}
+        >
+          {renderBoardPositionsOnOverlay}
+        </div>
       </div>
     </div>
   );

@@ -50,6 +50,8 @@ screen.config.highlightDurationMs = 500;
 screen.config.autoHighlight = true;
 screen.config.resourceDirectory = './assets/images/';
 
+let cachedBoardLocation: Region;
+
 const findImage = async ({ image, event }) => {
   const TIMEOUT = 1000 * 60 * 10;
   try {
@@ -60,54 +62,54 @@ const findImage = async ({ image, event }) => {
     currentWindowRegion.height = halfScreenHeight;
     currentWindowRegion.top += halfScreenHeight;
 
-    await screen.highlight(currentWindowRegion);
-
     await screen.waitFor(imageResource(`${image}.png`), TIMEOUT, 0, {
       confidence: 0.98,
       searchRegion: currentWindowRegion,
     });
 
-    const boardLocation = await screen.find(imageResource(`board.png`), {
+    if (!cachedBoardLocation) {
+      cachedBoardLocation = await screen.find(imageResource(`board.png`), {
+        confidence: 0.965,
+      });
+    }
+
+    const playerLocation: any = await screen.find(imageResource(`dot.png`), {
       confidence: 0.975,
     });
 
-    const playerLocation = await screen.find(imageResource(`dot.png`), {
-      confidence: 0.975,
-    });
+    const leftdX = playerLocation.left - cachedBoardLocation.left;
+    const topdX = playerLocation.top - cachedBoardLocation.top;
 
-    // console.log(boardLocation);
-    // console.log(playerLocation);
+    console.log(leftdX, topdX);
 
-    const leftdX = playerLocation.left - boardLocation.left;
-    const topdX = playerLocation.top - boardLocation.top;
+    let location;
+    if (leftdX > 30 && topdX > 85) {
+      location = 'BOTTOM_RIGHT';
+    } else if (leftdX > 30 && topdX > 55) {
+      location = 'MIDDLE_RIGHT';
+    } else if (leftdX > 30 && topdX > 25) {
+      location = 'TOP_RIGHT';
+    } else if (leftdX > -5 && topdX > 85) {
+      location = 'BOTTOM_MIDDLE';
+    } else if (leftdX > -5 && topdX > 55) {
+      location = 'CENTER';
+    } else if (leftdX > -5 && topdX > 25) {
+      location = 'TOP_MIDDLE';
+    } else if (leftdX > -35 && topdX > 85) {
+      location = 'BOTTOM_LEFT';
+    } else if (leftdX > -35 && topdX > 55) {
+      location = 'MIDDLE_LEFT';
+    } else if (leftdX > -35 && topdX > 25) {
+      location = 'TOP_LEFT';
+    }
 
     // console.log(`diff: ${leftdX}, ${topdX}`);
-
-    console.log(`${image} found!`, playerLocation);
+    console.log('cachedBoardPosition', cachedBoardLocation);
+    console.log(`${image} found!`, location);
     event.reply('searchForImage', {
       imageFound: image,
-      playerLocation,
+      location,
     });
-
-    if (leftdX > 35 && topdX > 90) {
-      console.log('bottom right');
-    } else if (leftdX > 35 && topdX > 60) {
-      console.log('middle right');
-    } else if (leftdX > 35 && topdX > 30) {
-      console.log('top right');
-    } else if (leftdX > 0 && topdX > 90) {
-      console.log('bottom middle');
-    } else if (leftdX > 0 && topdX > 60) {
-      console.log('middle middle');
-    } else if (leftdX > 0 && topdX > 30) {
-      console.log('top middle');
-    } else if (leftdX > -30 && topdX > 90) {
-      console.log('bottom left');
-    } else if (leftdX > -30 && topdX > 60) {
-      console.log('middle left');
-    } else if (leftdX > -30 && topdX > 30) {
-      console.log('top left');
-    }
   } catch (err) {
     console.log(err);
   }
